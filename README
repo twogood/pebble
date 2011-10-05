@@ -1,3 +1,5 @@
+Pebble Dependency Injection for PHP - https://github.com/twogood/pebble
+
 
 Simple Pebble usage
 -------------------
@@ -21,13 +23,13 @@ corresponding @SharedPebble or @PebbleFactory
     private $property;
 
 5. classes that use @Pebble must either inherit from PebbleDash, or call
-PebbleDash::dashObject($this) in their constructor
+PebbleDash::dashObject($this) in their constructor (or similar)
 
     class Example1 extends PebbleDash 
     { 
     }
     
-    class Example2
+    class Example2 extends OtherClass
     { 
       public function __construct()
       {
@@ -35,7 +37,6 @@ PebbleDash::dashObject($this) in their constructor
         PebbleDash::dashObject($this);
       }
     }
-
 
 
 Annotations
@@ -53,16 +54,14 @@ o Valid property annotation is @Pebble
 o If no pebble name is supplied within parenthesis after the class annotation,
 the property name is used
 
+
+Usage notes
+-----------
+
 o Pebble names are case-insensitive
 
-
-
-Pebble is viral
----------------
-
-PebbleDash::dashObject will be called on all objects that are set by dependency
-injection, i.e. have a @Pebble annotation.
-
+o Pebble is viral; i.e. PebbleDash::dashObject will be called on all objects
+that are set by dependency injection, i.e. have a @Pebble annotation.
 
 
 Using PebbleCollection
@@ -74,14 +73,16 @@ all declared classes for @SharedPebble and @PebbleFactory annotations.
 
 PebbleCollection has methods corresponding to the @SharedPebble and @PebbleFactory annotations:
 
-  @SharedPebble(name) -> setShared($name, $className)
-  @PebbleFactory(name) -> setFactory($name, $className)
+  @SharedPebble (name) <-> setShared ($name, $className)
+  @PebbleFactory(name) <-> setFactory($name, $className)
 
 Examples:
 
-    PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
-    
-    PebbleCollection::setFactory('foo', 'Application_Model_Foo');
+  PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
+  
+  PebbleCollection::setFactory('foo', 'Application_Model_Foo');
+
+There is not (yet) support in Pebble for loading a PebbleCollection from a file.
 
 
 There is also a method for setting any value for injection by @Pebble later:
@@ -129,5 +130,24 @@ In models/WebServiceClient.php:
     private $options;
 
     /* ... */
+}
+
+
+In models/MyController.php:
+
+class MyController extends Zend_Controller_Action
+{
+  /** @Pebble */
+  private $webServiceClient;
+
+  public function init()
+  {
+    PebbleDash::dashObject($this);
+  }
+    
+  /* ... */
+}
+
+
 
 
