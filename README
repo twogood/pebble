@@ -1,0 +1,133 @@
+
+Simple Pebble usage
+-------------------
+
+1. require_once 'pebble.php';
+
+2. annotate classes that will become shared objects (singletons) with 
+
+    /** @SharedPebble(name) */
+    class Foo {}
+
+3. annotate classes that always return a new instance with 
+
+    /** @PebbleFactory(name) */
+    class Bar {}
+
+4. annotate properties with /** @Pebble(name) */, where name has a
+corresponding @SharedPebble or @PebbleFactory
+
+    /** @Pebble(name) */
+    private $property;
+
+5. classes that use @Pebble must either inherit from PebbleDash, or call
+PebbleDash::dashObject($this) in their constructor
+
+    class Example1 extends PebbleDash 
+    { 
+    }
+    
+    class Example2
+    { 
+      public function __construct()
+      {
+        parent::__construct();
+        PebbleDash::dashObject($this);
+      }
+    }
+
+
+
+Annotations
+-----------
+
+o Annotations are enclosed in /** and */
+
+o Valid class annotations are @SharedPebble and @PebbleFactory
+
+o If no pebble name is supplied within parenthesis after the annotation, the
+class name is used
+
+o Valid property annotation is @Pebble
+
+o If no pebble name is supplied within parenthesis after the class annotation,
+the property name is used
+
+o Pebble names are case-insensitive
+
+
+
+Pebble is viral
+---------------
+
+PebbleDash::dashObject will be called on all objects that are set by dependency
+injection, i.e. have a @Pebble annotation.
+
+
+
+Using PebbleCollection
+----------------------
+
+The PebbleCollection contains all registered pebbles. If you don't call any
+"set" method on PebbleCollection it will use its collectPebbles method to scan
+all declared classes for @SharedPebble and @PebbleFactory annotations.
+
+PebbleCollection has methods corresponding to the @SharedPebble and @PebbleFactory annotations:
+
+  @SharedPebble(name) -> setShared($name, $className)
+  @PebbleFactory(name) -> setFactory($name, $className)
+
+Examples:
+
+    PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
+    
+    PebbleCollection::setFactory('foo', 'Application_Model_Foo');
+
+
+There is also a method for setting any value for injection by @Pebble later:
+
+  setValue($name, $value);
+
+Example:
+
+  PebbleCollection::setValue('webServiceOptions', $options['webService']);
+
+
+Pebble and class autoloading
+----------------------------
+
+When using Pebble with a project that uses PHP's Autoloading of Classes (for
+example if you use Zend Framework), the @PebbleFactory and @SharedPebble
+annotations are probably not useful. This is because the classes you want to
+inject are not yet loaded!
+
+In this case you use the setShared and/or setFactory methods of
+PebbleCollection, as documented above.
+
+
+Example for Zend Framework (1.x)
+--------------------------------
+
+In Bootstrap.php:
+
+  class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
+  {
+    protected function _initServices()
+    {
+      $options = $this->getOptions();
+      PebbleCollection::setValue('webServiceOptions', $options['webService']);
+      PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
+      /* ... */
+    }
+
+
+In models/WebServiceClient.php:
+
+  class Application_Model_WebServiceClient
+  {
+    /** @Pebble(webServiceOptions) */
+    private $options;
+
+    /* ... */
+
+
