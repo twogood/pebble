@@ -266,7 +266,7 @@ abstract class PebbleDash
   public static function dashObject($instance)
   {
     if (@$instance->_pebbleDash)
-      return;
+      return $instance;
 
     $propertyFilter = ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE;
 
@@ -279,7 +279,6 @@ abstract class PebbleDash
     }
 
     $instance->_pebbleDash = true;
-
     return $instance;
   }
 
