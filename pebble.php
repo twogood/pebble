@@ -214,7 +214,7 @@ class PebbleCollection
   }
 
   /**
-   * Create a PebbleFactory without annotaion
+   * Create a PebbleFactory regardless of annotation
    */
   public static function setFactory($name, $className)
   {
@@ -222,7 +222,7 @@ class PebbleCollection
   }
 
   /**
-   * Create a SharedPebble without annotaion
+   * Create a SharedPebble regardless of annotation
    */
   public static function setShared($name, $className)
   {
