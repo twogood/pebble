@@ -54,6 +54,8 @@ o Valid property annotation is @Pebble
 o If no pebble name is supplied within parenthesis after the class annotation,
 the property name is used
 
+o Constructor arguments are not supported
+
 
 Usage notes
 -----------
