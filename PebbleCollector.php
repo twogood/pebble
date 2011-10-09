@@ -51,7 +51,7 @@ class PebbleCollector
       return;
 
     $value = function() use ($className) {
-      return Pebble::dash(new $className());
+      return new $className();
     };
 
     switch ($annotation->getName())

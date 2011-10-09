@@ -1,6 +1,7 @@
 <?php
 
-require_once 'pebble.php';
+require_once 'Pebble.php';
+require_once 'PebbleCollector.php';
 
 
 
@@ -21,7 +22,6 @@ class SomeFoo
   /** @Pebble(someBar ) */
   private $bar;
 
-
   public function run()
   {
     echo "Foo!\n";
@@ -31,7 +31,7 @@ class SomeFoo
 
 
 
-class Master extends PebbleDash
+class Master extends Pebble
 {
   /** @Pebble */
   private $foo;
@@ -43,6 +43,7 @@ class Master extends PebbleDash
 
 }
 
+PebbleCollector::collectPebbles();
 
 $master = new Master();
 $master->run();

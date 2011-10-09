@@ -4,25 +4,15 @@ Pebble Dependency Injection for PHP - https://github.com/twogood/pebble
 Simple Pebble usage
 -------------------
 
-1. require_once 'pebble.php';
+1. require_once 'Pebble.php';
 
-2. annotate classes that will become shared objects (singletons) with 
-
-    /** @SharedPebble(name) */
-    class Foo {}
-
-3. annotate classes that always return a new instance with 
-
-    /** @PebbleFactory(name) */
-    class Bar {}
-
-4. annotate properties with /** @Pebble(name) */, where name has a
+2. annotate properties with /** @Pebble(name) */, where name has a
 corresponding @SharedPebble or @PebbleFactory
 
     /** @Pebble(name) */
     private $property;
 
-5. classes that use @Pebble must either inherit from PebbleDash, or call
+3. classes that use @Pebble must either inherit from PebbleDash, or call
 PebbleDash::dashObject($this) in their constructor (or similar)
 
     class Example1 extends PebbleDash 
@@ -39,12 +29,33 @@ PebbleDash::dashObject($this) in their constructor (or similar)
     }
 
 
+Simple PebbleCollector usage
+-------------------------------------
+
+1. Same as "Simple Pebble Usage" above 
+
+2. require_once 'PebbleCollector.php';
+
+3. annotate classes that will become shared objects (singletons) with 
+
+    /** @SharedPebble(name) */
+    class Foo {}
+
+4. annotate classes that always return a new instance with 
+
+    /** @PebbleFactory(name) */
+    class Bar {}
+
+5. call PebbleCollector::collectPebbles()
+
+
+
 Annotations
 -----------
 
 o Annotations are enclosed in /** and */
 
-o Valid class annotations are @SharedPebble and @PebbleFactory
+o Valid class annotations are @SharedPebble and @PebbleFactory (requires PebbleCollector)
 
 o If no pebble name is supplied within parenthesis after the annotation, the
 class name is used
@@ -62,38 +73,21 @@ Usage notes
 
 o Pebble names are case-insensitive
 
-o Pebble is viral; i.e. PebbleDash::dashObject will be called on all objects
-that are set by dependency injection, i.e. have a @Pebble annotation.
+o Pebble is viral; i.e. Pebble::dash will be called on all objects
+that are set by dependency injection, i.e. have an @Pebble annotation.
 
 
 Using PebbleCollection
 ----------------------
 
-The PebbleCollection contains all registered pebbles. If you don't call any
-"set" method on PebbleCollection it will use its collectPebbles method to scan
-all declared classes for @SharedPebble and @PebbleFactory annotations.
-
-PebbleCollection has methods corresponding to the @SharedPebble and @PebbleFactory annotations:
-
-  @SharedPebble (name) <-> setShared ($name, $className)
-  @PebbleFactory(name) <-> setFactory($name, $className)
-
-Examples:
-
-  PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
-  
-  PebbleCollection::setFactory('foo', 'Application_Model_Foo');
+The PebbleCollection contains all registered pebbles. 
 
 There is not (yet) support in Pebble for loading a PebbleCollection from a file.
 
-
-There is also a method for setting any value for injection by @Pebble later:
-
-  setValue($name, $value);
-
-Example:
-
-  PebbleCollection::setValue('webServiceOptions', $options['webService']);
+The PebbleCollection::set method is used to explicitly pebbles to the
+collection. The first parameter is the name of the pebble. The second parameter
+is either an anonymous function (closure) that will be evaluated on injection,
+or a value that will be injected as-is.
 
 
 Pebble and class autoloading
@@ -118,8 +112,8 @@ In Bootstrap.php:
     protected function _initServices()
     {
       $options = $this->getOptions();
-      PebbleCollection::setValue('webServiceOptions', $options['webService']);
-      PebbleCollection::setShared('webServiceClient', 'Application_Model_WebServiceClient');
+      PebbleCollection::set('webServiceOptions', $options['webService']);
+      PebbleCollection::once('webServiceClient', function () { return new Application_Model_WebServiceClient(); } );
       /* ... */
     }
 
