@@ -26,7 +26,7 @@ THE SOFTWARE.
 /**
  * Usage method 1: Inherit from Pebble
  *
- * Usage method 2: Call Pebble::dashObject($this) from __construct in your class
+ * Usage method 2: Call Pebble::dash($this) from __construct in your class
  */
 abstract class Pebble
 {
